@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CustomActionBarTransparencyAnimation</string>
+    <string name="cd_search_button">Search Button</string>
+    <string name="cd_home">Home</string>
 </resources>
