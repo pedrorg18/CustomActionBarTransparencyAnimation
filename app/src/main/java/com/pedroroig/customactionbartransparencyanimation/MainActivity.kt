@@ -33,17 +33,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addScrollViewListener() {
-        scrollViewHome.viewTreeObserver.addOnScrollChangedListener(onScrollChangeListener)
+        scrollView.viewTreeObserver.addOnScrollChangedListener(onScrollChangeListener)
     }
 
     private fun removeScrollViewListener() {
-        scrollViewHome.viewTreeObserver.removeOnScrollChangedListener(onScrollChangeListener)
+        scrollView.viewTreeObserver.removeOnScrollChangedListener(onScrollChangeListener)
     }
 
     private val onScrollChangeListener = ViewTreeObserver.OnScrollChangedListener {
-        val scrollY = scrollViewHome.scrollY
+        val scrollY = scrollView.scrollY
         // Height of the scrollView displayed in the activity
-        val scrollHeight = scrollViewHome.height
+        val scrollHeight = scrollView.height
 
         // scrollRate will define the alpha. We can do it faster by increasing the multiplier
         val scrollRate = ((scrollY.toFloat() / scrollHeight.toFloat()) * 2).let {
