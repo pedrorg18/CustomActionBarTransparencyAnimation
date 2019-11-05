@@ -1,5 +1,7 @@
 package com.pedroroig.customactionbartransparencyanimation
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,14 +9,17 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.pedroroig.customactionbartransparencyanimation.extensions.show
+import com.pedroroig.customactionbartransparencyanimation.utils.changeWidthAnimation
+import com.pedroroig.customactionbartransparencyanimation.utils.fadeAnimation
+import com.pedroroig.customactionbartransparencyanimation.utils.unFadeAnimation
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.custom_action_bar.*
-import android.animation.ObjectAnimator
 
 
 class MainActivity : AppCompatActivity() {
 
-    private val transparenceAnimationTime = 500L
+    private val transparencyAnimationTime = 400L
 
     private lateinit var actionBarView: View
     private lateinit var actionBarParent: Toolbar
@@ -46,6 +51,30 @@ class MainActivity : AppCompatActivity() {
 
     private var previousScrollPercentage = 0F
 
+    private val fadeToolBarAnimation: ObjectAnimator by lazy {
+        fadeAnimation(toolbarFakeBackground, transparencyAnimationTime)
+    }
+
+    private val unFadeToolBarAnimation: ObjectAnimator by lazy {
+        unFadeAnimation(toolbarFakeBackground, transparencyAnimationTime)
+    }
+
+    private val expandSearchBarAnimation: ValueAnimator by lazy {
+        changeWidthAnimation(
+            llSearchBox, transparencyAnimationTime, search_icon_vc.width, containerSearchBarWrapper.width) {
+                search_vc.show()
+        }
+    }
+
+    private val contractSearchBarAnimation: ValueAnimator by lazy {
+        changeWidthAnimation(
+            llSearchBox,
+            transparencyAnimationTime,
+            containerSearchBarWrapper.width,
+            search_icon_vc.width
+        )
+    }
+
     private val onScrollChangeListener = ViewTreeObserver.OnScrollChangedListener {
         val scrollY = scrollView.scrollY
         // Height of the scrollView displayed in the activity
@@ -56,31 +85,29 @@ class MainActivity : AppCompatActivity() {
         val scrollableRegion = scrollView.getChildAt(0).height - scrollHeight
         val scrollPercentage = scrollY.toFloat() / scrollableRegion.toFloat() * 100
 
-        if(scrollPercentage < 0) // avoid top and bottom screen bouncing
+        if (scrollPercentage < 0) // avoid top and bottom screen bouncing
             previousScrollPercentage = 0F
-        else if(scrollPercentage > 100)
+        else if (scrollPercentage > 100)
             previousScrollPercentage = 100F
         else {
             if (scrollPercentage > previousScrollPercentage) {
-                if(toolbarFakeBackground.alpha == 0F) {
+                if (toolbarFakeBackground.alpha == 0F) {
                     Log.i(
                         "SCROLL:::",
                         "DOWN - scrollPercentage: $scrollPercentage previousScrollPercentage: $previousScrollPercentage"
                     )
-                    val anim = ObjectAnimator.ofFloat(toolbarFakeBackground, "alpha", 1f)
-                    anim.duration = transparenceAnimationTime
-                    anim.start()
+                    unFadeToolBarAnimation.start()
+                    expandSearchBarAnimation.start()
                 }
 
             } else {
-                if(toolbarFakeBackground.alpha == 1F && scrollY < (2 * toolbarFakeBackground.height)) {
+                if (toolbarFakeBackground.alpha == 1F && scrollY < (2 * toolbarFakeBackground.height)) {
                     Log.i(
                         "SCROLL:::",
                         "UP - scrollPercentage: $scrollPercentage previousScrollPercentage: $previousScrollPercentage"
                     )
-                    val anim = ObjectAnimator.ofFloat(toolbarFakeBackground, "alpha", 0f)
-                    anim.duration = transparenceAnimationTime
-                    anim.start()
+                    fadeToolBarAnimation.start()
+                    contractSearchBarAnimation.start()
                 }
             }
 
